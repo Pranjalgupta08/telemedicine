@@ -14,13 +14,15 @@ If the Windows Python launcher is unavailable, use `python server.py`. Then open
 
 ## Public demo deployment
 
-The included `render.yaml` can be used to deploy the frontend and API together as a free Render web service:
+The included `render.yaml` deploys the frontend and API together as a free Render web service. The included `vercel.json` can alternatively deploy the frontend to Vercel and proxy its `/api` requests to that Render backend, keeping browser requests on the Vercel app origin:
 
-1. Put this project in a GitHub repository (do not upload `.venv` or the `data` folder).
-2. In Render, create a new Blueprint and connect that repository. Render will read `render.yaml`; deploy the `kindred-care-demo` service.
-3. Open the service URL Render provides. The free service may sleep when idle, so the first visit can take a little longer. Its filesystem is temporary, so saved demo data can be lost when the service restarts or redeploys.
+1. Import this GitHub repository into Vercel and deploy from the `main` branch. The Vercel project serves the static frontend; `vercel.json` proxies `/api/*` to `https://kindred-care-demo.onrender.com`.
+2. Keep the Render `kindred-care-demo` backend deployed and available; the Vercel frontend depends on it for login and all saved records.
+3. The free Render service may sleep when idle, so the first API request can take a little longer. Its filesystem is temporary, so saved demo data can be lost when that backend restarts or redeploys.
 
-Each set of matching name, date of birth, and mobile number signs in to its own demo profile; entering a different set creates a new profile with separate appointments, reminders, and medication check-offs. This is only a demo profile gate, not a secure account system: the details are not strong credentials, and the public app and unencrypted database are not suitable for personal or medical information. Anyone can create a fictional profile. Use fictional data only; never enter real personal, medical, or login information. The link becomes available only after the service is deployed in a Render account.
+The project can also be deployed entirely on Render using `render.yaml` without Vercel.
+
+Each set of matching name, date of birth, and mobile number signs in to its own demo profile; entering a different set creates a new profile with separate appointments, reminders, and medication check-offs. This is only a demo profile gate, not a secure account system: the details are not strong credentials, and the public app and unencrypted database are not suitable for personal or medical information. Anyone can create a fictional profile. Use fictional data only; never enter real personal, medical, or login information. The app link becomes available after deployment on Vercel or Render.
 
 ## Prototype features
 
