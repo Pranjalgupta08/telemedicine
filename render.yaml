@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: kindred-care-demo
+    runtime: python
+    plan: free
+    buildCommand: python -c "print('No third-party dependencies to install')"
+    startCommand: python server.py
+    envVars:
+      - key: KINDRED_HOST
+        value: 0.0.0.0

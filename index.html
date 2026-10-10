@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8f5">
+  <title>Kindred Care — your care, made simple</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20352f;
+      --muted: #687a73;
+      --green: #176b5b;
+      --green-dark: #105346;
+      --green-light: #e3f3ed;
+      --canvas: #f5f7fb;
+      --white: #fff;
+      --line: #e4e9f1;
+      --amber: #9d5c12;
+      --amber-light: #fff1dd;
+      --blue: #395eaa;
+      --blue-light: #eaf0ff;
+      --purple: #704ca5;
+      --purple-light: #f0eaff;
+      --coral: #a94c52;
+      --coral-light: #fff0ef;
+      --shadow: 0 9px 28px rgba(44, 57, 91, .075);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 17px;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid #e4b348;
+      outline-offset: 3px;
+    }
+    .skip-link { position: fixed; top: -100px; left: 14px; z-index: 50; padding: 12px 16px; border-radius: 10px; background: var(--green-dark); color: white; font-weight: 750; }
+    .skip-link:focus { top: 12px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .app { min-height: 100vh; }
+    .login-screen {
+      position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; overflow: auto;
+      padding: 24px; background:
+        radial-gradient(ellipse at 12% 14%, rgba(255, 205, 130, .72), transparent 32%),
+        radial-gradient(ellipse at 86% 18%, rgba(186, 164, 255, .72), transparent 34%),
+        radial-gradient(ellipse at 84% 92%, rgba(107, 221, 196, .68), transparent 32%),
+        linear-gradient(135deg, #e5f5ff, #fff3e6 48%, #f3e9ff);
+    }
+    .login-card {
+      width: min(100%, 520px); padding: clamp(25px, 5vw, 42px); border: 1px solid rgba(255,255,255,.82);
+      border-radius: 28px; background: rgba(255,255,255,.92); box-shadow: 0 25px 80px rgba(70, 68, 123, .2);
+      backdrop-filter: blur(12px);
+    }
+    .login-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 27px; }
+    .login-brand-mark { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 19px; background: linear-gradient(145deg, #20b796, #4d66cf 55%, #8d59bd); color: white; font-size: 31px; font-weight: 800; box-shadow: 0 8px 18px rgba(82, 92, 184, .25); }
+    .login-brand strong { display: block; font-size: 21px; letter-spacing: -.5px; }
+    .login-brand span { color: var(--muted); font-size: 14px; }
+    .login-kicker { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 20px; background: #f1eaff; color: #59418b; font-size: 13px; font-weight: 800; }
+    .login-card h1 { margin: 16px 0 9px; font-size: clamp(28px, 6vw, 36px); }
+    .login-intro { margin: 0 0 21px; color: #58677c; line-height: 1.55; }
+    .login-form { display: grid; gap: 15px; }
+    .login-form label { display: grid; gap: 7px; color: #394b62; font-weight: 750; }
+    .login-form input { width: 100%; min-height: 54px; padding: 12px 14px; border: 1px solid #d6dcec; border-radius: 13px; background: #fbfcff; color: var(--ink); }
+    .login-form input::placeholder { color: #8994a5; }
+    .login-submit { width: 100%; min-height: 55px; margin-top: 3px; border: 0; border-radius: 14px; background: linear-gradient(105deg, #188d78, #5366c9 57%, #8252ac); color: white; font-weight: 800; box-shadow: 0 9px 20px rgba(72, 91, 177, .23); }
+    .login-submit:disabled { opacity: .65; cursor: wait; }
+    .login-warning { margin-top: 19px; padding: 13px 14px; border: 1px solid #f0d49b; border-radius: 13px; background: #fff8e9; color: #684a20; font-size: 13px; line-height: 1.55; }
+    .login-error { min-height: 22px; margin: 0; color: #9c2f39; font-size: 14px; font-weight: 700; line-height: 1.5; }
+    @media (prefers-reduced-motion: no-preference) {
+      .login-card { animation: login-enter .5s cubic-bezier(.2,.8,.2,1) both; }
+      @keyframes login-enter { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    }
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; z-index: 5; width: 248px;
+      display: flex; flex-direction: column; padding: 28px 18px 20px;
+      background: var(--white); border-right: 1px solid var(--line);
+    }
+    .brand { display: flex; gap: 12px; align-items: center; padding: 0 10px; margin-bottom: 38px; }
+    .brand-mark {
+      display: grid; place-items: center; width: 44px; height: 44px; border-radius: 15px;
+      background: linear-gradient(145deg, #22a486, #176b5b); color: white; font-size: 25px; font-weight: 700;
+    }
+    .brand-name { font-size: 22px; font-weight: 750; letter-spacing: -.7px; }
+    .brand-caption { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; font-weight: 500; }
+    .nav-label { padding: 0 12px; margin: 0 0 11px; color: #829088; font-size: 12px; font-weight: 750; letter-spacing: 1px; text-transform: uppercase; }
+    .nav { display: grid; gap: 6px; }
+    .nav button {
+      min-height: 50px; display: flex; align-items: center; gap: 13px; width: 100%; padding: 0 14px;
+      border: 0; border-radius: 13px; background: transparent; color: #596a63; text-align: left; font-weight: 600;
+    }
+    .nav button:hover { background: #f4f7f4; }
+    .nav button.active { background: var(--green-light); color: var(--green-dark); font-weight: 750; }
+    .nav-icon { width: 24px; text-align: center; font-size: 20px; }
+    .sidebar-bottom { margin-top: auto; }
+    .help-card { padding: 17px; border-radius: 17px; background: #f2f6f1; }
+    .help-card strong { display: block; margin-bottom: 7px; font-size: 16px; }
+    .help-card p { margin: 0 0 13px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .help-card button { border: 0; background: none; padding: 0; color: var(--green-dark); font-weight: 750; }
+    .privacy-note { padding: 16px 9px 0; color: #78857f; font-size: 12px; line-height: 1.5; }
+    main { max-width: 1512px; margin-left: 248px; padding: 30px clamp(24px, 4vw, 62px) 56px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 30px; }
+    .eyebrow { margin: 0 0 7px; color: var(--muted); font-size: 15px; }
+    h1 { margin: 0; font-size: clamp(27px, 3vw, 35px); letter-spacing: -1px; line-height: 1.2; }
+    h2 { margin: 0; font-size: 20px; letter-spacing: -.35px; }
+    h3 { margin: 0; font-size: 17px; }
+    .profile { display: flex; align-items: center; gap: 11px; }
+    .avatar { display: grid; place-items: center; width: 45px; height: 45px; border-radius: 50%; background: #f4dfc4; color: #694c32; font-weight: 800; }
+    .profile-name { font-weight: 700; }
+    .profile-label { margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .profile .quiet-btn { min-height: 40px; padding: 0 10px; font-size: 13px; }
+    .mobile-brand { display: none; }
+    .demo-banner {
+      display: flex; gap: 11px; align-items: flex-start; padding: 14px 17px; margin-bottom: 22px;
+      border: 1px solid #ead9ae; border-radius: 14px; background: #fffaf0; color: #69552f; font-size: 14px; line-height: 1.5;
+    }
+    .demo-banner strong { color: #5a471f; }
+    .welcome {
+      position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      min-height: 174px; padding: 28px 32px; margin-bottom: 22px; overflow: hidden;
+      border: 1px solid #d7e8f6; border-radius: 21px;
+      background: linear-gradient(115deg, #e5f7f0 0%, #eaf0ff 64%, #f8edff 100%);
+    }
+    .welcome::after { content: "✿"; position: absolute; right: 230px; bottom: -53px; color: rgba(84,83,170,.1); font-size: 200px; line-height: 1; }
+    .welcome-copy { position: relative; z-index: 1; max-width: 520px; }
+    .welcome h2 { margin-bottom: 9px; font-size: 25px; }
+    .welcome p { margin: 0; color: #465e6b; line-height: 1.55; }
+    .welcome-kicker { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 10px; color: #176b5b; font-size: 13px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+    .primary-btn, .secondary-btn, .quiet-btn, .danger-btn {
+      min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      padding: 0 18px; border: 0; border-radius: 12px; font-weight: 750; text-decoration: none;
+    }
+    .primary-btn { background: linear-gradient(135deg, #218b73, #176b5b); color: white; box-shadow: 0 3px 9px rgba(23,107,91,.15); }
+    .primary-btn:hover { background: var(--green-dark); }
+    .secondary-btn { border: 1px solid #dce5df; background: white; color: var(--ink); }
+    .secondary-btn:hover { background: #f7faf7; }
+    .quiet-btn { min-height: 42px; padding: 0 13px; background: transparent; color: var(--green-dark); }
+    .danger-btn { background: #a83f3b; color: white; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(310px, .95fr); gap: 21px; align-items: start; }
+    .column { display: grid; gap: 20px; }
+    .card { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--white); box-shadow: var(--shadow); }
+    .history-section { margin-top: 20px; scroll-margin-top: 24px; }
+    .history-list { display: grid; gap: 12px; }
+    .history-item { display: grid; grid-template-columns: 48px minmax(0,1fr) auto; align-items: center; gap: 13px; padding: 14px; border: 1px solid #e8eaf4; border-radius: 14px; background: #fcfbff; }
+    .history-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--purple-light); font-size: 21px; }
+    .history-item:nth-child(even) .history-icon { background: var(--green-light); }
+    .history-title { font-weight: 750; }
+    .history-meta { margin-top: 4px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .history-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .history-tag { display: inline-block; padding: 4px 8px; border-radius: 20px; background: var(--purple-light); color: #563b89; font-size: 12px; font-weight: 700; }
+    .history-tag.green { background: var(--green-light); color: var(--green-dark); }
+    .history-empty { padding: 16px; border-radius: 13px; background: #f8f9fc; color: var(--muted); line-height: 1.5; }
+    .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
+    .text-link { border: 0; background: none; color: var(--green-dark); font-size: 15px; font-weight: 750; }
+    .appointment-card {
+      display: grid; grid-template-columns: 74px 1fr auto; align-items: center; gap: 17px;
+      padding: 17px; border: 1px solid #e9efeb; border-radius: 15px; background: #fbfcfb;
+    }
+    .date-tile { padding: 11px 5px; border-radius: 13px; background: var(--green-light); color: var(--green-dark); text-align: center; }
+    .date-tile .month { font-size: 12px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+    .date-tile .day { display: block; margin: 2px 0; font-size: 28px; font-weight: 800; }
+    .appointment-info h3 { margin-bottom: 6px; }
+    .appointment-info p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .doctor-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: #425950; font-size: 14px; font-weight: 650; }
+    .mini-avatar { display: inline-grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: #dce9e1; font-size: 12px; }
+    .appointment-actions { display: grid; justify-items: center; gap: 8px; }
+    .status-pill { padding: 5px 9px; border-radius: 30px; background: var(--blue-light); color: #42678f; font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .video-btn { min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--green); color: white; font-size: 14px; font-weight: 750; white-space: nowrap; }
+    .empty-state { padding: 25px 12px; color: var(--muted); text-align: center; }
+    .empty-state p { margin: 0 0 13px; }
+    .med-check { display: inline-flex; align-items: center; gap: 7px; margin-top: 8px; color: var(--green-dark); font-size: 13px; font-weight: 700; cursor: pointer; }
+    .med-check input { width: 19px; height: 19px; accent-color: var(--green); }
+    .progress-row { display: flex; justify-content: space-between; gap: 10px; padding-top: 13px; border-top: 1px solid #eff2ef; color: var(--muted); font-size: 14px; }
+    .progress-row strong { color: var(--green-dark); }
+    .record-row { display: flex; align-items: center; gap: 13px; padding: 12px 0; }
+    .record-row + .record-row { border-top: 1px solid #eff2ef; }
+    .record-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--blue-light); font-size: 19px; }
+    .record-info { flex: 1; min-width: 0; }
+    .record-info strong { display: block; font-size: 15px; }
+    .record-info small { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .record-row button { padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--green-dark); font-size: 13px; font-weight: 750; }
+    .ai-card { border: 1px solid #ded6f2; background: linear-gradient(135deg, #f5f0ff 0%, #eff7ff 100%); }
+    .ai-heading { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+    .ai-mark { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 auto; border-radius: 13px; background: #e6dcff; color: #573b92; font-size: 22px; }
+    .ai-card p { margin: 6px 0 14px; color: #526078; font-size: 14px; line-height: 1.55; }
+    .ai-feature {
+      position: relative; overflow: hidden; border: 2px solid #d8c7fb;
+      background: linear-gradient(135deg, #f1eaff 0%, #edf4ff 52%, #e8f8f5 100%);
+      box-shadow: 0 12px 34px rgba(103, 70, 164, .12);
+    }
+    .ai-feature::after { content: "✦"; position: absolute; right: 18px; top: 8px; color: rgba(106, 75, 168, .12); font-size: 94px; pointer-events: none; }
+    .ai-feature > * { position: relative; z-index: 1; }
+    .ai-feature .ai-heading { gap: 14px; }
+    .ai-feature .ai-mark { width: 54px; height: 54px; border-radius: 18px; background: linear-gradient(145deg, #8b66db, #5740aa); color: white; font-size: 27px; box-shadow: 0 5px 15px rgba(87, 64, 170, .25); animation: guide-glow 3s ease-in-out infinite; }
+    .ai-feature .ai-heading h3 { font-size: 20px; }
+    .ai-feature .ai-card-copy { max-width: 430px; margin: 12px 0 16px; color: #46566e; font-size: 15px; line-height: 1.6; }
+    .ai-available { display: inline-flex; align-items: center; gap: 7px; margin-top: 7px; color: #563b89; font-size: 13px; font-weight: 750; }
+    .ai-available::before { width: 9px; height: 9px; border-radius: 50%; background: #22866a; content: ""; box-shadow: 0 0 0 4px rgba(34,134,106,.12); }
+    .ai-feature .primary-btn { min-height: 50px; border-radius: 14px; background: linear-gradient(115deg, #6244b7, #367bb2, #218b73); box-shadow: 0 5px 15px rgba(84, 71, 158, .23); }
+    .ai-feature .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(84, 71, 158, .26); }
+    .ai-safety { display: block; margin-top: 11px; color: #58657a; font-size: 12px; line-height: 1.45; }
+    @keyframes guide-glow { 0%, 100% { box-shadow: 0 5px 15px rgba(87,64,170,.22); } 50% { box-shadow: 0 7px 22px rgba(87,64,170,.42); } }
+    .ai-topic-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    .ai-topic { min-height: 40px; padding: 7px 12px; border: 1px solid #d9d3eb; border-radius: 22px; background: #fff; color: #49377b; font-size: 14px; font-weight: 700; }
+    .ai-chat-log { display: grid; gap: 10px; max-height: 260px; overflow-y: auto; padding: 13px; border: 1px solid #e6eaf1; border-radius: 13px; background: #fafbfe; }
+    .ai-message { max-width: 92%; padding: 11px 13px; border-radius: 13px; background: #f0eaff; color: #33294b; line-height: 1.5; overflow-wrap: anywhere; }
+    .ai-message.user { justify-self: end; background: #e3f3ed; color: var(--ink); }
+    .medicine-empty { padding: 17px; border: 1px dashed #d8deea; border-radius: 13px; background: #fafbff; color: #526078; line-height: 1.5; }
+    .medicine-history { display: grid; gap: 11px; }
+    .medicine-record { padding: 14px; border: 1px solid #dfe7e4; border-radius: 13px; background: #fbfdfc; }
+    .medicine-record-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .medicine-record h3 { margin-bottom: 4px; }
+    .medicine-detail { margin-top: 8px; color: #4f625b; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+    .medicine-record .med-check { margin-top: 11px; }
+    .bottom-nav { display: none; }
+    .overlay { position: fixed; inset: 0; z-index: 20; display: none; place-items: center; padding: 20px; background: rgba(21, 38, 32, .48); }
+    .overlay.open { display: grid; }
+    .dialog { width: min(100%, 540px); max-height: min(88vh, 780px); overflow: auto; padding: 26px; border-radius: 20px; background: white; box-shadow: 0 22px 70px rgba(0,0,0,.2); }
+    .dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 19px; }
+    .dialog-header h2 { font-size: 23px; }
+    .dialog-header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .close-btn { display: grid; flex: 0 0 auto; place-items: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: white; color: var(--ink); font-size: 22px; }
+    .form-grid { display: grid; gap: 15px; }
+    .form-field { display: grid; gap: 7px; color: #40554b; font-size: 15px; font-weight: 700; }
+    .form-field input, .form-field select, .form-field textarea { width: 100%; min-height: 49px; padding: 10px 12px; border: 1px solid #d9e2dc; border-radius: 11px; background: white; color: var(--ink); }
+    .form-field textarea { min-height: 92px; resize: vertical; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 19px; }
+    .success-message { padding: 18px; border-radius: 13px; background: var(--green-light); color: var(--green-dark); line-height: 1.55; }
+    .call-dialog { width: min(100%, 760px); padding: 0; overflow: hidden; background: #192b28; color: white; }
+    .call-top { display: flex; align-items: center; justify-content: space-between; padding: 19px 22px; }
+    .call-top small { display: block; margin-top: 4px; color: #c2d0ca; }
+    .call-top .close-btn { border-color: #52635d; background: #263a35; color: white; }
+    .call-stage { display: grid; place-items: center; min-height: 360px; padding: 24px; background: radial-gradient(ellipse at 50% 80%, #36564a, #1a2d29 72%); text-align: center; }
+    .doctor-video-placeholder { display: grid; justify-items: center; gap: 13px; }
+    .doctor-portrait { display: grid; place-items: center; width: 116px; height: 116px; border: 4px solid rgba(255,255,255,.2); border-radius: 50%; background: #d8e5dc; color: #315848; font-size: 42px; font-weight: 800; }
+    .doctor-video-placeholder p { margin: 0; color: #d6e0db; font-size: 15px; }
+    #local-video { display: none; position: absolute; right: 22px; bottom: 22px; width: 150px; height: 112px; border: 2px solid white; border-radius: 14px; background: #354c44; object-fit: cover; transform: scaleX(-1); }
+    .video-area { position: relative; width: 100%; }
+    .call-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 13px; padding: 18px; }
+    .call-control { min-width: 100px; max-width: 100%; padding: 11px 14px; border: 1px solid #56675f; border-radius: 13px; background: #2b3c36; color: white; font-size: 13px; font-weight: 700; }
+    .call-control.is-muted { background: #52655b; }
+    .call-control.end { border: 0; background: #b54c46; }
+    .chat-log { display: grid; gap: 10px; max-height: 290px; overflow: auto; padding: 14px; border-radius: 13px; background: #f5f8f5; }
+    .chat-bubble { max-width: 85%; padding: 11px 13px; border-radius: 14px; background: white; line-height: 1.45; }
+    .chat-bubble.mine { justify-self: end; background: var(--green-light); }
+    .chat-compose { display: flex; gap: 9px; margin-top: 13px; }
+    .chat-compose input { flex: 1; min-width: 0; min-height: 48px; padding: 10px 13px; border: 1px solid #d9e2dc; border-radius: 11px; }
+    .care-instructions { padding: 16px; border-radius: 13px; background: #f5f8f5; line-height: 1.6; }
+    .form-section { display: grid; gap: 13px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: #fbfcff; }
+    .form-section legend { padding: 0 5px; color: var(--ink); font-weight: 800; }
+    .check-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+    .check-option { display: flex; gap: 9px; align-items: flex-start; min-height: 43px; padding: 10px; border-radius: 10px; background: #fff; color: #40554b; font-size: 14px; font-weight: 600; }
+    .check-option input { width: 19px; height: 19px; flex: 0 0 auto; accent-color: var(--green); }
+    .inline-note { padding: 12px 14px; border-left: 4px solid #e2a539; border-radius: 9px; background: var(--amber-light); color: #684a20; font-size: 14px; line-height: 1.55; }
+    .field-hint { color: var(--muted); font-size: 13px; font-weight: 400; line-height: 1.45; }
+    .backend-status { margin-top: 5px; color: var(--green-dark); font-size: 13px; line-height: 1.4; }
+    .backend-status.error { color: #8d292f; font-weight: 700; }
+    .prescription-entry { display: grid; gap: 13px; margin-top: 11px; padding: 14px; border: 1px solid #ded7ef; border-radius: 13px; background: #fbf9ff; }
+    .prescription-entry + .prescription-entry { margin-top: 12px; }
+    .prescription-entry-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: #543780; font-weight: 800; }
+    .history-prescription { min-height: 42px; border: 1px solid #d9d0ec; border-radius: 10px; background: #f7f3ff; color: #543780; font-size: 14px; font-weight: 750; white-space: nowrap; }
+    .skip-prescription { display: flex; align-items: center; gap: 9px; color: #40554b; font-size: 14px; }
+    .skip-prescription input { width: 19px; height: 19px; accent-color: var(--green); }
+    .status-complete { background: var(--green-light); color: var(--green-dark); }
+    button:hover { filter: brightness(.97); }
+    .primary-btn:hover { filter: brightness(.94); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+    .care-instructions p { margin: 7px 0; }
+    .note { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    @media (max-width: 1050px) {
+      .sidebar { width: 220px; }
+      main { margin-left: 220px; padding-right: 26px; padding-left: 26px; }
+      .layout { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+      .card { padding: 18px; }
+      .appointment-card { grid-template-columns: 64px 1fr; }
+      .appointment-actions { grid-column: 2; display: flex; justify-content: flex-start; }
+    }
+    @media (max-width: 760px) {
+      .sidebar { display: none; }
+      main { margin-left: 0; padding: 20px 17px 95px; }
+      .topbar { margin-bottom: 19px; }
+      .mobile-brand { display: flex; align-items: center; gap: 9px; }
+      .mobile-brand .brand-mark { width: 39px; height: 39px; border-radius: 13px; font-size: 21px; }
+      .mobile-brand .brand-name { font-size: 19px; }
+      .topbar-copy { display: none; }
+      .profile-name, .profile-label { display: none; }
+      .profile .avatar { width: 40px; height: 40px; }
+      .profile .quiet-btn { padding: 0 8px; font-size: 12px; }
+      .demo-banner { font-size: 13px; }
+      .welcome { min-height: auto; align-items: flex-start; padding: 23px; }
+      .welcome::after { right: -15px; bottom: -43px; font-size: 150px; }
+      .welcome h2 { font-size: 22px; }
+      .welcome p { font-size: 15px; }
+      .welcome .primary-btn { align-self: flex-end; z-index: 1; min-width: 51px; padding: 0 13px; font-size: 0; }
+      .welcome .primary-btn::after { content: "+"; font-size: 24px; }
+      .layout { grid-template-columns: 1fr; gap: 15px; }
+      .column { gap: 15px; }
+      .card { padding: 18px; }
+      .appointment-card { grid-template-columns: 62px minmax(0, 1fr); gap: 12px; padding: 13px; }
+      .appointment-info h3 { font-size: 16px; }
+      .appointment-info p, .doctor-line { font-size: 13px; }
+      .appointment-actions { grid-column: 2; }
+      .bottom-nav {
+        position: fixed; z-index: 10; inset: auto 0 0; display: grid; grid-template-columns: repeat(4, 1fr);
+        padding: 8px 6px max(9px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255,255,255,.97);
+      }
+      .bottom-nav { grid-template-columns: repeat(6, 1fr); }
+      .bottom-nav button { display: grid; justify-items: center; gap: 3px; padding: 5px 2px; border: 0; background: none; color: #718079; font-size: 9px; font-weight: 700; }
+      .bottom-nav button span:first-child { font-size: 20px; }
+      .bottom-nav button.active { color: var(--green-dark); }
+      .dialog { padding: 21px; }
+      .call-dialog { padding: 0; }
+      .call-stage { min-height: 310px; }
+      .call-control { min-width: 92px; padding: 10px; }
+      #local-video { right: 7px; bottom: 7px; width: 112px; height: 85px; }
+    }
+    @media (max-width: 390px) {
+      :root { font-size: 16px; }
+      main { padding-right: 12px; padding-left: 12px; }
+      .welcome { padding: 18px; }
+      .status-pill { font-size: 11px; }
+      .video-btn { padding: 0 9px; font-size: 13px; }
+    }
+    @media (max-width: 340px) {
+      main { padding-right: 8px; padding-left: 8px; }
+      .card, .column, .history-item { min-width: 0; }
+      .card { padding: 12px; }
+      .section-heading { flex-wrap: wrap; }
+      .section-heading > * { min-width: 0; }
+      .text-link { white-space: normal; text-align: right; }
+      .appointment-card { grid-template-columns: 50px minmax(0, 1fr); gap: 8px; }
+      .date-tile { padding: 9px 3px; }
+      .appointment-actions { grid-column: 1 / -1; justify-content: space-between; }
+      .welcome { padding: 15px; }
+      .history-item { grid-template-columns: 40px minmax(0,1fr); }
+      .history-icon { width: 38px; height: 38px; }
+      .history-prescription { grid-column: 2; justify-self: start; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      button, .card { transition: background-color .16s ease, transform .16s ease, box-shadow .16s ease; }
+      .card:hover { box-shadow: 0 10px 28px rgba(32, 53, 47, .075); }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#home">Skip to main content</a>
+  <section class="login-screen" id="login-screen" aria-labelledby="login-title">
+    <div class="login-card">
+      <div class="login-brand"><span class="login-brand-mark" aria-hidden="true">+</span><div><strong>Kindred Care</strong><span>Your care, made simple</span></div></div>
+      <span class="login-kicker"><span aria-hidden="true">✦</span> A welcoming place for your care</span>
+      <h1 id="login-title">Welcome</h1>
+      <p class="login-intro" id="login-intro">Enter your existing details to sign in, or new fictional details to create a separate demo profile.</p>
+      <form id="login-form" class="login-form">
+        <label>Your full name<input name="fullName" autocomplete="name" placeholder="For example, Alex Sample" minlength="2" maxlength="100" required></label>
+        <label>Date of birth<input name="dateOfBirth" type="date" autocomplete="bday" required></label>
+        <label>Mobile number<input name="mobileNumber" type="tel" autocomplete="tel" inputmode="tel" placeholder="+1 555 010 1234" minlength="7" maxlength="20" required></label>
+        <p class="login-error" id="login-error" role="alert" aria-live="assertive"></p>
+        <button class="login-submit" type="submit">Sign in or create profile <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="login-warning"><strong>Demo profile only — not secure login.</strong> Name, birth date, and phone number do not verify identity. Use fictional details only. Each profile has separate demo records, but the database is not encrypted and this is not a secure account system. Never enter real personal or medical information.</div>
+    </div>
+  </section>
+  <div class="app" id="app" hidden>
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">+</span><div class="brand-name">Kindred Care<span class="brand-caption">Care, made simple</span></div></div>
+      <p class="nav-label">Your care</p>
+      <nav class="nav">
+        <button class="active" data-target="home" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span>Home</button>
+        <button data-action="book"><span class="nav-icon" aria-hidden="true">▦</span>Appointments</button>
+        <button data-target="medications"><span class="nav-icon" aria-hidden="true">◉</span>My medicines</button>
+        <button data-action="records"><span class="nav-icon" aria-hidden="true">▧</span>Health records</button>
+        <button data-target="history"><span class="nav-icon" aria-hidden="true">◷</span>Visit history</button>
+        <button data-action="ai-guide"><span class="nav-icon" aria-hidden="true">✦</span>AI care guide</button>
+        <button data-action="clinician-workspace"><span class="nav-icon" aria-hidden="true">♙</span>Clinician workspace · demo</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card"><strong>AI care guide is ready</strong><p>Get general health information and help preparing questions for your doctor.</p><button data-action="ai-guide">Open care guide →</button></div>
+        <div class="privacy-note">🔒 Your health information deserves extra care.<br>Sample experience — no real patient data.</div>
+      </div>
+    </aside>
+
+    <main id="home" tabindex="-1">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">+</span><span class="brand-name">Kindred Care</span></div>
+        <div class="topbar-copy"><p class="eyebrow" id="today-label">Your care at a glance</p><h1 id="greeting">Welcome to your care</h1></div>
+        <div class="profile"><div class="avatar" id="profile-avatar" aria-hidden="true">KC</div><div><div class="profile-name" id="profile-name">Demo patient</div><div class="profile-label">Demo profile</div></div><button class="quiet-btn" type="button" data-action="logout">Sign out</button></div>
+      </header>
+
+      <div class="demo-banner" role="note">
+        <span aria-hidden="true">ⓘ</span>
+        <div><strong>Sample experience:</strong> Use fictional information only. Demo profiles have separate sample records, but this is not a secure account system or medical record. Appointments, prescriptions, video calls, AI, and clinician access are not connected to clinic services.<div id="backend-status" class="backend-status" role="status">Connecting to the demo database…</div></div>
+      </div>
+
+      <section class="welcome" aria-labelledby="welcome-title">
+        <div class="welcome-copy">
+          <span class="welcome-kicker"><span aria-hidden="true">✦</span> A brighter way to care</span>
+          <h2 id="welcome-title">Your health, at your pace.</h2>
+          <p>Book a visit, keep track of your care, and find everything in one comfortable place.</p>
+        </div>
+        <button class="primary-btn" data-action="book"><span aria-hidden="true">＋</span> Book an appointment</button>
+      </section>
+
+      <div class="layout">
+        <div class="column">
+          <section class="card" id="appointments" aria-labelledby="appointments-title">
+            <div class="section-heading"><h2 id="appointments-title">Your next appointment</h2><button class="text-link" data-action="book">＋ Book new</button></div>
+            <div id="appointment-content"></div>
+          </section>
+          <section class="card" id="medications" aria-labelledby="medications-title">
+            <div class="section-heading"><div><h2 id="medications-title">My medicines</h2><p class="eyebrow" style="margin:6px 0 0">Only added after a completed consultation</p></div><button class="text-link" id="reminder-toggle" disabled aria-disabled="true">Reminders unavailable</button></div>
+            <div class="medicine-history" id="medicine-list" aria-live="polite"></div>
+          </section>
+        </div>
+
+        <div class="column">
+          <section class="card" aria-labelledby="records-title">
+            <div class="section-heading"><h2 id="records-title">My health records</h2><button class="text-link" data-action="records">See all</button></div>
+            <div class="record-row">
+              <span class="record-icon" aria-hidden="true">🩺</span>
+              <div class="record-info"><strong>Care summary</strong><small>Updated September 18</small></div>
+              <button data-action="care-summary">View</button>
+            </div>
+            <div class="record-row">
+              <span class="record-icon" aria-hidden="true">📄</span>
+              <div class="record-info"><strong>Latest prescription</strong><small id="latest-prescription-date">No completed visits yet</small></div>
+              <button data-target="history">View history</button>
+            </div>
+            <div class="record-row">
+              <span class="record-icon" aria-hidden="true">🧪</span>
+              <div class="record-info"><strong>Blood test results</strong><small>September 12</small></div>
+              <button data-action="lab-results">View</button>
+            </div>
+          </section>
+          <section class="card ai-card ai-feature" aria-labelledby="ai-feature-title">
+            <div class="ai-heading"><span class="ai-mark" aria-hidden="true">✦</span><div><h3 id="ai-feature-title">Your AI care guide</h3><span class="ai-available">Available any time · demo</span></div></div>
+            <p class="ai-card-copy">Doctor unavailable? Get general health information and prepare questions for your next appointment. Your guide is easy to find, easy to use, and never a replacement for your clinician.</p>
+            <button class="primary-btn" data-action="ai-guide">✦ Open my AI care guide</button>
+            <span class="ai-safety">Not connected to a live AI or doctor. It cannot diagnose, recommend treatment, or prescribe.</span>
+          </section>
+        </div>
+      </div>
+      <section class="card history-section" id="history" aria-labelledby="history-title">
+        <div class="section-heading"><div><h2 id="history-title">Visit &amp; prescription history</h2><p class="eyebrow" style="margin:6px 0 0">Your completed visits and clinician-provided notes</p></div><span class="record-icon" aria-hidden="true">◷</span></div>
+        <div class="history-list" id="history-list" aria-live="polite"></div>
+      </section>
+    </main>
+    <nav class="bottom-nav" aria-label="Mobile navigation">
+      <button class="active" data-target="home" aria-current="page"><span aria-hidden="true">⌂</span><span>Home</span></button>
+      <button data-action="book"><span aria-hidden="true">▦</span><span>Visits</span></button>
+      <button data-target="medications"><span aria-hidden="true">◉</span><span>Meds</span></button>
+      <button data-target="history"><span aria-hidden="true">◷</span><span>History</span></button>
+      <button data-action="ai-guide"><span aria-hidden="true">✦</span><span>Guide</span></button>
+      <button data-action="clinician-workspace"><span aria-hidden="true">♙</span><span>Clinician</span></button>
+    </nav>
+  </div>
+
+  <div class="overlay" id="modal-overlay" role="presentation">
+    <section class="dialog" id="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title"></section>
+  </div>
+
+  <script>
+    (() => {
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const overlay = $("#modal-overlay");
+      const dialog = $("#modal-dialog");
+      const today = new Date();
+      const localDateString = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      let appointments = [];
+      let remindersEnabled = false;
+      let checkedMedicationIds = new Set();
+      let backendReady = false;
+      let localStream = null;
+      let previousFocus = null;
+      let activeAppointmentId = null;
+      let activeClinician = null;
+
+      async function apiRequest(path, method = "GET", body) {
+        let response;
+        try {
+          response = await fetch(path, {
+            method,
+            headers: body === undefined ? {} : { "Content-Type": "application/json" },
+            body: body === undefined ? undefined : JSON.stringify(body),
+            credentials: "same-origin"
+          });
+        } catch (error) {
+          throw new Error("The local backend is unavailable. Start it with `py -3 server.py` and open http://127.0.0.1:8000.");
+        }
+        const responseText = await response.text();
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (error) {
+          if (!(error instanceof SyntaxError)) throw error;
+          const details = responseText.trim().slice(0, 160);
+          if (!response.ok) {
+            throw new Error(`Backend request failed (${response.status})${details ? `: ${details}` : "."} Open the app at http://127.0.0.1:8000 while the local server is running.`);
+          }
+          throw new Error(`The backend returned a non-JSON response (${response.status}). Open the app at http://127.0.0.1:8000 while the local server is running.`);
+        }
+        if (!response.ok) throw new Error(result.error || `Backend request failed (${response.status}).`);
+        if ($("#backend-status").classList.contains("error")) {
+          setBackendStatus("Connected to the demo SQLite database.");
+        }
+        return result;
+      }
+
+      function setBackendStatus(message, isError = false) {
+        const status = $("#backend-status");
+        status.textContent = message;
+        status.classList.toggle("error", isError);
+        status.setAttribute("role", isError ? "alert" : "status");
+      }
+
+      function reportBackendError(error) {
+        const message = error instanceof Error ? error.message : "The backend request failed.";
+        setBackendStatus(`Not saved: ${message}`, true);
+      }
+
+      const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[char]);
+      const formatDate = (dateString, options) => new Date(`${dateString}T12:00:00`).toLocaleDateString(undefined, options);
+      const openDialog = (html, className = "") => {
+        previousFocus = document.activeElement;
+        dialog.className = `dialog ${className}`.trim();
+        dialog.innerHTML = html;
+        overlay.classList.add("open");
+        document.body.style.overflow = "hidden";
+        const focusTarget = dialog.querySelector("input, select, textarea, button");
+        if (focusTarget) focusTarget.focus();
+      };
+      const closeDialog = () => {
+        overlay.classList.remove("open");
+        document.body.style.overflow = "";
+        if (localStream) {
+          localStream.getTracks().forEach((track) => track.stop());
+          localStream = null;
+        }
+        if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
+      };
+
+      function renderAppointments() {
+        const content = $("#appointment-content");
+        const future = getUpcomingAppointments();
+        const pending = appointments.filter((item) => item.status === "awaiting-prescription");
+        if (!future.length) {
+          if (pending.length) {
+            content.innerHTML = `<div class="empty-state">${pending.map((item) => `<p>Your visit with ${escapeHtml(item.doctor)} has ended. Your clinician still needs to review the visit and add any prescription. <span class="status-pill">Waiting for clinician</span></p>`).join("")}<button class="secondary-btn" data-action="book">Book an appointment</button></div>`;
+            return;
+          }
+          content.innerHTML = '<div class="empty-state"><p>You don’t have an upcoming appointment yet.</p><button class="secondary-btn" data-action="book">Book an appointment</button></div>';
+          return;
+        }
+        const next = future[0];
+        const date = new Date(`${next.date}T12:00:00`);
+        const time = new Date(`2000-01-01T${next.time}`).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        const initials = next.doctor.split(" ").filter((word) => word !== "Dr.").map((word) => word[0]).slice(0, 2).join("");
+        content.innerHTML = `
+          <div class="appointment-card">
+            <div class="date-tile"><span class="month">${date.toLocaleDateString([], { month: "short" })}</span><span class="day">${date.getDate()}</span><span class="month">${date.toLocaleDateString([], { weekday: "short" })}</span></div>
+            <div class="appointment-info"><h3>${escapeHtml(next.specialty)} check-in</h3><p>${formatDate(next.date, { weekday: "long", month: "long", day: "numeric" })} at ${time} · ${escapeHtml(next.format)}</p><div class="doctor-line"><span class="mini-avatar" aria-hidden="true">${escapeHtml(initials)}</span>${escapeHtml(next.doctor)}</div></div>
+            <div class="appointment-actions"><span class="status-pill">Booked · demo</span><button class="video-btn" data-action="${next.format === "In-person visit" ? "appointment-details" : "call"}">${next.format === "In-person visit" ? "View details" : "Join visit"}</button></div>
+          </div>${pending.length ? `<div class="inline-note" style="margin-top:14px"><strong>Waiting for clinician review:</strong> ${pending.map((item) => `Visit with ${escapeHtml(item.doctor)} (${formatDate(item.date, { month: "short", day: "numeric" })})`).join("; ")}. Any prescription will be added after the assigned clinician reviews the visit.</div>` : ""}`;
+      }
+
+      function getUpcomingAppointments() {
+        return appointments
+          .filter((item) => item.status === "scheduled" && new Date(`${item.date}T${item.time || "23:59"}`) >= new Date())
+          .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+      }
+
+      function getAppointmentPrescriptions(appointment) {
+        if (Array.isArray(appointment.prescriptions)) return appointment.prescriptions;
+        return appointment.prescription ? [appointment.prescription] : [];
+      }
+
+      function renderHistory() {
+        const list = $("#history-list");
+        const completed = appointments
+          .filter((item) => item.status === "completed")
+          .sort((a, b) => `${b.completedOn || b.date}${b.time || ""}`.localeCompare(`${a.completedOn || a.date}${a.time || ""}`));
+        if (!completed.length) {
+          list.innerHTML = '<div class="history-empty">Your completed appointments and clinician-provided prescriptions will appear here.</div>';
+          $("#latest-prescription-date").textContent = "No completed visit yet";
+          return;
+        }
+        const latestPrescriptionAppointment = completed.find((item) => getAppointmentPrescriptions(item).length);
+        const latestPrescription = latestPrescriptionAppointment && getAppointmentPrescriptions(latestPrescriptionAppointment)[0];
+        $("#latest-prescription-date").textContent = latestPrescription
+          ? `${escapeHtml(latestPrescription.medication)} · ${formatDate(latestPrescription.issuedOn || latestPrescriptionAppointment.date, { month: "long", day: "numeric" })}`
+          : "No prescription on file";
+        list.innerHTML = completed.map((item) => {
+          const date = item.completedOn || item.date;
+          const conditions = Array.isArray(item.conditions) ? item.conditions : [];
+          const prescriptions = getAppointmentPrescriptions(item);
+          const scheduledDate = item.date && item.date !== date
+            ? ` · Booked for ${formatDate(item.date, { month: "short", day: "numeric" })}`
+            : "";
+          return `<article class="history-item">
+            <span class="history-icon" aria-hidden="true">✓</span>
+            <div><div class="history-title">${escapeHtml(item.specialty || "Care")} visit with ${escapeHtml(item.doctor)}</div>
+              <div class="history-meta">Completed ${formatDate(date, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}${escapeHtml(scheduledDate)} · ${escapeHtml(item.format || "Consultation")}</div>
+              <div class="history-tags"><span class="history-tag">${escapeHtml(item.concern || "Visit completed")}</span>${conditions.map((condition) => `<span class="history-tag green">${escapeHtml(condition)}</span>`).join("")}</div>
+            </div>
+            ${prescriptions.length
+              ? `<button class="history-prescription" data-action="history-prescription" data-id="${escapeHtml(item.id)}" aria-label="View ${prescriptions.length === 1 ? "prescription" : `${prescriptions.length} prescriptions`} from ${escapeHtml(date)}">View ${prescriptions.length === 1 ? "prescription" : `${prescriptions.length} prescriptions`}</button>`
+              : '<span class="status-pill status-complete">No prescription</span>'}
+          </article>`;
+        }).join("");
+      }
+
+      function getPrescribedMedicines() {
+        return appointments.flatMap((appointment) =>
+          appointment.status === "completed"
+            ? getAppointmentPrescriptions(appointment).map((prescription, index) => ({
+              ...prescription,
+              appointment,
+              index,
+              id: `${appointment.id}-medicine-${index}`
+            }))
+            : []
+        );
+      }
+
+      function renderMedicines() {
+        const medicines = getPrescribedMedicines();
+        const list = $("#medicine-list");
+        const reminderToggle = $("#reminder-toggle");
+        reminderToggle.disabled = medicines.length === 0;
+        reminderToggle.setAttribute("aria-disabled", String(medicines.length === 0));
+        reminderToggle.textContent = medicines.length
+          ? (remindersEnabled ? "Turn reminders off" : "Turn reminders on")
+          : "Reminders unavailable";
+        if (!medicines.length) {
+          list.innerHTML = '<div class="medicine-empty">No medicines have been added. A medicine appears here only after a completed consultation when a clinician enters a prescription.</div>';
+          return;
+        }
+        const taken = medicines.filter((medicine) => checkedMedicationIds.has(medicine.id)).length;
+        list.innerHTML = medicines.map((medicine) => {
+          const prescription = medicine;
+          const date = prescription.issuedOn || medicine.appointment.completedOn || medicine.appointment.date;
+          return `<article class="medicine-record">
+            <div class="medicine-record-header"><div><h3>${escapeHtml(prescription.medication)}</h3><div class="history-tags"><span class="history-tag">${escapeHtml(prescription.condition || medicine.appointment.concern || "Visit prescription")}</span><span class="history-tag green">${escapeHtml(prescription.medicineType || "Medicine")}</span><span class="history-tag green">From ${escapeHtml(medicine.appointment.doctor)}</span></div></div><span class="status-pill status-complete">Prescribed</span></div>
+            <div class="medicine-detail"><strong>Strength:</strong> ${escapeHtml(prescription.strength || "Not listed")} · <strong>Form:</strong> ${escapeHtml(prescription.form || "Not listed")}<br><strong>Amount each dose:</strong> ${escapeHtml(prescription.doseAmount || "Not listed")} ${escapeHtml(prescription.doseUnit || "")} · <strong>Doses per day:</strong> ${escapeHtml(prescription.dosesPerDay || "Not listed")}<br><strong>Route:</strong> ${escapeHtml(prescription.route || "Not listed")} · <strong>Schedule:</strong> ${escapeHtml(prescription.frequency || "As directed")} · <strong>Duration:</strong> ${escapeHtml(prescription.duration || "Not specified")}<br>${prescription.dose ? `<strong>Extra dose instructions:</strong> ${escapeHtml(prescription.dose)}<br>` : ""}<strong>Quantity:</strong> ${escapeHtml(prescription.quantity || "Not listed")} · <strong>Refills:</strong> ${escapeHtml(prescription.refills || "0")} · <strong>Prescribed:</strong> ${formatDate(date, { month: "short", day: "numeric", year: "numeric" })}${prescription.pharmacy ? `<br><strong>Pharmacy:</strong> ${escapeHtml(prescription.pharmacy)}` : ""}${prescription.instructions ? `<br><strong>Clinician's notes:</strong> ${escapeHtml(prescription.instructions)}` : ""}${prescription.missedDose ? `<br><strong>If you miss a dose:</strong> ${escapeHtml(prescription.missedDose)}` : ""}${prescription.safetyAdvice ? `<br><strong>Side effects and warning signs:</strong> ${escapeHtml(prescription.safetyAdvice)}` : ""}</div>
+            <label class="med-check"><input type="checkbox" data-med="${escapeHtml(medicine.id)}"${checkedMedicationIds.has(medicine.id) ? " checked" : ""}> I took this medicine today</label>
+          </article>`;
+        }).join("") + `<div class="progress-row"><span id="dose-progress">${taken} of ${medicines.length} recorded taken today</span><strong id="reminder-status">${remindersEnabled ? "Reminders are on" : "Reminders are off"}</strong></div>`;
+        list.querySelectorAll("[data-med]").forEach((checkbox) => {
+          checkbox.addEventListener("change", async () => {
+            const medicineId = checkbox.dataset.med;
+            const taken = checkbox.checked;
+            checkbox.disabled = true;
+            try {
+              await apiRequest("/api/medication-checks", "PUT", {
+                date: localDateString(today),
+                medicineId,
+                taken
+              });
+              if (taken) checkedMedicationIds.add(medicineId);
+              else checkedMedicationIds.delete(medicineId);
+              const count = medicines.filter((medicine) => checkedMedicationIds.has(medicine.id)).length;
+              $("#dose-progress").textContent = `${count} of ${medicines.length} recorded taken today`;
+            } catch (error) {
+              checkbox.checked = !taken;
+              reportBackendError(error);
+            } finally {
+              checkbox.disabled = false;
+            }
+          });
+        });
+      }
+
+      function showBooking() {
+        if (!backendReady) {
+          if (!$("#backend-status").classList.contains("error")) setBackendStatus("Please wait for the demo database to finish connecting.");
+          return;
+        }
+        const minDate = localDateString(today);
+        openDialog(`
+          <div class="dialog-header"><div><h2 id="modal-title">Book an appointment</h2><p>Choose a doctor and a time that works for you.</p></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div>
+          <form id="booking-form">
+            <div class="form-grid">
+              <label class="form-field">Choose your doctor
+                <select name="doctor" required><option value="" selected disabled>Choose a doctor</option><option value="Dr. Priya Shah">Dr. Priya Shah · Primary care</option><option value="Dr. James Chen">Dr. James Chen · Cardiology</option><option value="Dr. Elena Rivera">Dr. Elena Rivera · Family medicine</option></select>
+              </label>
+              <label class="form-field">Appointment type
+                <select name="format" required><option value="" selected disabled>Choose how to meet</option><option>Video visit</option><option>Audio call</option><option>In-person visit</option></select>
+              </label>
+              <label class="form-field">Choose a date<input type="date" name="date" min="${minDate}" required></label>
+              <label class="form-field">Available time
+                <select name="time" id="booking-time" required disabled><option value="" selected disabled>Choose a date first</option></select>
+              </label>
+              <label class="form-field">What would you like to discuss?
+                <select name="reportedConcern" required><option value="" selected disabled>Choose a concern</option><option>General health check</option><option>Heart or circulation</option><option>Breathing or allergies</option><option>Pain, bones, or joints</option><option>Sleep or energy</option><option>Medicine questions</option><option>Something else</option></select>
+              </label>
+              <label class="form-field">Tell the doctor a little more (optional)<textarea name="concernDetails" maxlength="240" placeholder="Your own words are fine"></textarea></label>
+              <fieldset class="form-section">
+                <legend>Other health conditions to mention</legend>
+                <span class="field-hint">Choose any that apply. Your doctor can review them during the visit.</span>
+                <div class="check-grid">
+                  <label class="check-option"><input type="checkbox" name="conditions" value="Diabetes"> Diabetes</label>
+                  <label class="check-option"><input type="checkbox" name="conditions" value="High blood pressure"> High blood pressure</label>
+                  <label class="check-option"><input type="checkbox" name="conditions" value="Heart condition"> Heart condition</label>
+                  <label class="check-option"><input type="checkbox" name="conditions" value="Asthma or breathing condition"> Asthma or breathing condition</label>
+                  <label class="check-option"><input type="checkbox" name="conditions" value="Arthritis or joint condition"> Arthritis or joint condition</label>
+                </div>
+                <label class="form-field">Another condition (optional)<input name="otherCondition" maxlength="100" autocomplete="off"></label>
+              </fieldset>
+              <p class="field-hint" id="booking-availability" role="status" aria-live="polite">These sample times are for demonstration only.</p>
+            </div>
+            <div class="form-actions"><button class="secondary-btn" type="button" data-action="close">Cancel</button><button class="primary-btn" type="submit">Confirm appointment</button></div>
+          </form>
+          <p class="note">Demo only: this appointment is saved in the demo database and is not sent to a clinic.</p>
+        `);
+        const timeSlots = [["09:00", "9:00 AM"], ["10:30", "10:30 AM"], ["13:00", "1:00 PM"], ["14:30", "2:30 PM"]];
+        const dateField = $('#booking-form [name="date"]');
+        const updateAvailableTimes = () => {
+          const timeSelect = $("#booking-time");
+          if (!dateField.value) {
+            timeSelect.innerHTML = '<option value="" selected disabled>Choose a date first</option>';
+            timeSelect.disabled = true;
+            $("#booking-availability").textContent = "Choose a date to see sample times.";
+            return;
+          }
+          const isToday = dateField.value === minDate;
+          const nowTime = `${String(today.getHours()).padStart(2, "0")}:${String(today.getMinutes()).padStart(2, "0")}`;
+          const available = timeSlots.filter(([value]) => !isToday || value > nowTime);
+          timeSelect.innerHTML = `<option value="" selected disabled>Choose an available time</option>${(available.length ? available : timeSlots).map(([value, label]) => `<option value="${value}">${label}</option>`).join("")}`;
+          timeSelect.disabled = false;
+          if (!available.length) {
+            const nextDate = new Date(today);
+            nextDate.setDate(nextDate.getDate() + 1);
+            dateField.value = localDateString(nextDate);
+            $("#booking-availability").textContent = "No sample times remain today. We selected tomorrow for you.";
+          } else {
+            $("#booking-availability").textContent = "These sample times are for demonstration only.";
+          }
+        };
+        dateField.addEventListener("change", updateAvailableTimes);
+        updateAvailableTimes();
+        $("#booking-form").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          const doctor = String(form.get("doctor"));
+          const bookedAppointment = {
+            id: `visit-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            status: "scheduled",
+            doctor,
+            specialty: doctor === "Dr. James Chen" ? "Heart health" : doctor === "Dr. Elena Rivera" ? "Family medicine" : "Primary care",
+            date: String(form.get("date")),
+            time: String(form.get("time")),
+            format: String(form.get("format")),
+            reportedConcern: String(form.get("reportedConcern")),
+            concernDetails: String(form.get("concernDetails") || "").trim(),
+            reportedConditions: [...form.getAll("conditions").map(String), String(form.get("otherCondition") || "").trim()].filter(Boolean),
+            conditions: []
+          };
+          if (new Date(`${bookedAppointment.date}T${bookedAppointment.time}`) <= new Date()) {
+            $("#booking-availability").textContent = "That time has passed. Please choose a later sample time.";
+            $("#booking-availability").setAttribute("role", "alert");
+            return;
+          }
+          const submitButton = event.currentTarget.querySelector('[type="submit"]');
+          submitButton.disabled = true;
+          try {
+            appointments.push(await apiRequest("/api/appointments", "POST", bookedAppointment));
+            renderAppointments();
+            renderHistory();
+            openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Appointment saved</h2></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="success-message">Your sample appointment is stored in the demo SQLite database. This demo does not contact a clinic.</div><div class="form-actions"><button class="primary-btn" data-action="close">Done</button></div>`);
+          } catch (error) {
+            const availability = $("#booking-availability");
+            availability.textContent = error.message;
+            availability.setAttribute("role", "alert");
+            reportBackendError(error);
+          } finally {
+            if (submitButton.isConnected) submitButton.disabled = false;
+          }
+        });
+      }
+
+      function showCall() {
+        const appointment = getUpcomingAppointments()[0];
+        if (!appointment) return;
+        activeAppointmentId = appointment.id;
+        const doctor = appointment ? appointment.doctor : "your doctor";
+        const audioOnly = appointment && appointment.format === "Audio call";
+        openDialog(`
+          <div class="call-top"><div><strong>${audioOnly ? "Audio call" : "Video visit"} with ${escapeHtml(doctor)}</strong><small id="call-status">Preview — no doctor is connected</small></div><button class="close-btn" data-action="close" aria-label="Close visit">×</button></div>
+          <div class="call-stage" aria-label="Sample consultation preview"><div class="video-area"><div class="doctor-video-placeholder"><span class="doctor-portrait" aria-hidden="true">${doctor === "Dr. James Chen" ? "JC" : doctor === "Dr. Elena Rivera" ? "ER" : "PS"}</span><strong>${escapeHtml(doctor)}</strong><p id="call-message">This is a sample ${audioOnly ? "audio call" : "call"} screen. A secure calling service is not connected.</p></div><video id="local-video" autoplay muted playsinline aria-label="Your camera preview"></video></div></div>
+          <div class="call-controls">${audioOnly ? "" : '<button class="call-control" data-action="camera" aria-pressed="false">Turn camera on</button>'}<button class="call-control" data-action="mute" aria-pressed="false">Mute microphone</button><button class="call-control end" data-action="finish-consultation">End consultation</button></div>
+          <p class="note" style="padding:0 20px 18px;color:#c2d0ca">${audioOnly ? "This prototype does not transmit audio." : "Your camera preview stays on this device. This prototype does not transmit audio or video."}</p>
+        `, "call-dialog");
+      }
+
+      function addPrescriptionRow() {
+        const entries = $("#prescription-entries");
+        if (!entries) return;
+        const number = entries.querySelectorAll(".prescription-entry").length + 1;
+        entries.insertAdjacentHTML("beforeend", `
+          <fieldset class="prescription-entry">
+            <legend class="prescription-entry-heading"><span>Medicine ${number}</span>${number > 1 ? '<button class="quiet-btn" type="button" data-action="remove-prescription" aria-label="Remove medicine entry">Remove</button>' : ""}</legend>
+            <label class="form-field">Condition this medicine is for<select name="medicineCondition" required><option value="" selected disabled>Choose a clinician-confirmed condition</option></select></label>
+            <label class="form-field">Medicine type<select name="medicineType" required><option value="" selected disabled>Choose a type</option><option>Prescription medicine</option><option>Over-the-counter medicine</option><option>Supplement</option></select></label>
+            <label class="form-field">Medicine name from clinician<input name="medicine" maxlength="100" required></label>
+            <label class="form-field">Strength<input name="strength" maxlength="80" placeholder="For example, as written on prescription" required></label>
+            <label class="form-field">Medicine form<select name="form" required><option value="" selected disabled>Choose the form</option><option>Tablet</option><option>Capsule</option><option>Liquid</option><option>Injection</option><option>Cream or ointment</option><option>Inhaler</option><option>Drops</option><option>Spray</option><option>Patch</option><option>Other clinician-specified form</option></select></label>
+            <label class="form-field">Number to take each dose<input name="doseAmount" type="number" min="0.01" max="99999" step="0.01" placeholder="Exact amount on clinician's instructions" required></label>
+            <label class="form-field">Unit per dose<select name="doseUnit" required><option value="" selected disabled>Choose unit</option><option>tablet(s)</option><option>capsule(s)</option><option>mL</option><option>drop(s)</option><option>puff(s)</option><option>spray(s)</option><option>application(s)</option><option>patch(es)</option><option>unit(s)</option><option>mg</option><option>mcg</option><option>g</option><option>other clinician-specified unit</option></select></label>
+            <label class="form-field">Number of doses each day<input name="dosesPerDay" type="number" min="0.01" max="24" step="0.01" placeholder="Enter the clinician-prescribed count" required></label>
+            <span class="field-hint">Enter dose amounts and daily dose counts exactly as prescribed by the clinician. This form does not calculate or recommend doses.</span>
+            <label class="form-field">Additional dose instructions (optional)<input name="dose" maxlength="100" placeholder="Any extra exact instructions from clinician"></label>
+            <label class="form-field">How it is taken<input name="route" maxlength="60" placeholder="By mouth, inhaled, applied…" required></label>
+            <label class="form-field">How often<input name="frequency" maxlength="120" placeholder="Exact schedule from clinician" required></label>
+            <label class="form-field">Duration<input name="duration" maxlength="80" placeholder="Enter as prescribed" required></label>
+            <label class="form-field">Quantity<input name="quantity" maxlength="60" placeholder="Quantity on prescription" required></label>
+            <label class="form-field">Number of refills<input name="refills" type="number" min="0" max="99" step="1" required value="0"></label>
+            <label class="form-field">Pharmacy (optional)<input name="pharmacy" maxlength="120"></label>
+            <label class="form-field">Extra clinician instructions (optional)<textarea name="instructions" maxlength="300" placeholder="Warnings, food instructions, or follow-up exactly as clinician provided"></textarea></label>
+            <label class="form-field">If a dose is missed (optional)<textarea name="missedDose" maxlength="240" placeholder="Enter the clinician or pharmacy instructions exactly"></textarea></label>
+            <label class="form-field">Possible side effects or urgent warning signs (optional)<textarea name="safetyAdvice" maxlength="300" placeholder="Enter only information provided by the clinician or pharmacist"></textarea></label>
+          </fieldset>`);
+        updatePrescriptionConditionOptions();
+      }
+
+      function getClinicianConfirmedConditions() {
+        const form = $("#consultation-form");
+        if (!form) return [];
+        const concern = form.elements.concern.value;
+        const confirmed = [...form.querySelectorAll('[name="confirmedConditions"]:checked')].map((input) => input.value);
+        const additional = form.elements.conditionsText.value.split(/[,;\n]/).map((condition) => condition.trim()).filter(Boolean);
+        return [...new Set([concern, ...confirmed, ...additional].filter(Boolean))];
+      }
+
+      function updatePrescriptionConditionOptions() {
+        const options = getClinicianConfirmedConditions();
+        $("#prescription-entries")?.querySelectorAll('[name="medicineCondition"]').forEach((select) => {
+          const currentValue = select.value;
+          select.innerHTML = `<option value="" disabled>${options.length ? "Choose a clinician-confirmed condition" : "Add a clinician-confirmed condition first"}</option>${options.map((condition) => `<option value="${escapeHtml(condition)}">${escapeHtml(condition)}</option>`).join("")}`;
+          if (options.includes(currentValue)) select.value = currentValue;
+          else select.selectedIndex = 0;
+        });
+      }
+
+      function updatePrescriptionRowLabels() {
+        $("#prescription-entries").querySelectorAll(".prescription-entry").forEach((entry, index) => {
+          entry.querySelector("legend span").textContent = `Medicine ${index + 1}`;
+          const removeButton = entry.querySelector('[data-action="remove-prescription"]');
+          if (index === 0 && removeButton) removeButton.remove();
+          if (index > 0 && !removeButton) {
+            entry.querySelector("legend").insertAdjacentHTML("beforeend", '<button class="quiet-btn" type="button" data-action="remove-prescription" aria-label="Remove medicine entry">Remove</button>');
+          }
+        });
+      }
+
+      async function finishConsultation() {
+        const appointment = appointments.find((item) => item.id === activeAppointmentId);
+        if (!appointment || appointment.status !== "scheduled") return;
+        const updatedAppointment = {
+          ...appointment,
+          status: "awaiting-prescription",
+          consultationEndedOn: localDateString(today)
+        };
+        try {
+          Object.assign(appointment, await apiRequest(`/api/appointments/${encodeURIComponent(appointment.id)}`, "PUT", updatedAppointment));
+        } catch (error) {
+          reportBackendError(error);
+          $("#call-message").textContent = `Could not save the visit status. ${error.message}`;
+          return;
+        }
+        renderAppointments();
+        closeDialog();
+        openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Consultation ended</h2></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="success-message" role="status">Your consultation with ${escapeHtml(appointment.doctor)} has ended and the visit status is stored in the demo SQLite database. Any prescription will be added by the clinician assigned to this appointment after reviewing your visit. No medicine has been added yet. This is a demo, not a clinic service.</div><div class="form-actions"><button class="primary-btn" data-action="close">Done</button></div>`);
+      }
+
+      function showClinicianWorkspace() {
+        if (!backendReady) {
+          if (!$("#backend-status").classList.contains("error")) setBackendStatus("Please wait for the demo database to finish connecting.");
+          return;
+        }
+        const doctors = ["Dr. Priya Shah", "Dr. James Chen", "Dr. Elena Rivera"];
+        openDialog(`
+          <div class="dialog-header"><div><h2 id="modal-title">Clinician workspace</h2><p>Prescription work is filtered to the doctor selected for each visit.</p></div><button class="close-btn" data-action="close" aria-label="Close clinician workspace">×</button></div>
+          <div class="inline-note"><strong>Prototype only:</strong> Choosing a clinician here is not authentication. This browser demo cannot restrict access to a real doctor. Do not enter real patient information.</div>
+          <form id="clinician-select-form" class="form-grid">
+            <label class="form-field">Select clinician for this demo
+              <select name="clinician" required><option value="" selected disabled>Choose a clinician</option>${doctors.map((doctor) => `<option value="${escapeHtml(doctor)}">${escapeHtml(doctor)}</option>`).join("")}</select>
+            </label>
+            <div class="form-actions"><button class="primary-btn" type="submit">View assigned visits</button></div>
+          </form>`);
+        $("#clinician-select-form").addEventListener("submit", (event) => {
+          event.preventDefault();
+          activeClinician = String(new FormData(event.currentTarget).get("clinician") || "");
+          renderClinicianVisits();
+        });
+      }
+
+      function renderClinicianVisits() {
+        const pending = appointments.filter((item) =>
+          item.status === "awaiting-prescription" && item.doctor === activeClinician
+        );
+        const visits = pending.length
+          ? pending.map((appointment) => `<article class="history-item"><span class="history-icon" aria-hidden="true">!</span><div><div class="history-title">${escapeHtml(appointment.specialty || "Care")} visit</div><div class="history-meta">${escapeHtml(formatDate(appointment.date, { month: "long", day: "numeric", year: "numeric" }))} · Assigned to ${escapeHtml(appointment.doctor)}</div><div class="history-tags"><span class="history-tag">${escapeHtml(appointment.reportedConcern || "Patient concern not specified")}</span></div></div><button class="history-prescription" data-action="doctor-visit" data-id="${escapeHtml(appointment.id)}">Review visit &amp; prescribe</button></article>`).join("")
+          : '<div class="history-empty">There are no visits awaiting clinician review assigned to this doctor.</div>';
+        openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Assigned visits</h2><p>Demo clinician: ${escapeHtml(activeClinician)}</p></div><button class="close-btn" data-action="close" aria-label="Close assigned visits">×</button></div><div class="history-list">${visits}</div><div class="inline-note" style="margin-top:14px">Only visits assigned to the selected doctor appear in this demo workspace. This is not a secure access control.</div><div class="form-actions"><button class="secondary-btn" data-action="clinician-workspace">Choose another clinician</button><button class="primary-btn" data-action="close">Done</button></div>`);
+      }
+
+      function showClinicianPrescriptionEditor(appointmentId) {
+        const appointment = appointments.find((item) => item.id === appointmentId);
+        if (!appointment || appointment.status !== "awaiting-prescription" || appointment.doctor !== activeClinician) {
+          openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Visit unavailable</h2></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="success-message" role="status">This visit is not assigned to the selected clinician or is no longer awaiting review.</div><div class="form-actions"><button class="primary-btn" data-action="close">Close</button></div>`);
+          return;
+        }
+        activeAppointmentId = appointment.id;
+        const concerns = ["General health check", "Heart or circulation", "Breathing or allergies", "Pain, bones, or joints", "Sleep or energy", "Medicine questions", "Something else"];
+        const knownConditions = ["Diabetes", "High blood pressure", "Heart condition", "Asthma or breathing condition", "Arthritis or joint condition"];
+        const conditionChecks = knownConditions.map((condition) => `<label class="check-option"><input type="checkbox" name="confirmedConditions" value="${escapeHtml(condition)}"> ${escapeHtml(condition)}</label>`).join("");
+        const reportedConditions = appointment.reportedConditions || appointment.conditions || [];
+        const patientReport = `Patient-reported concern: ${appointment.reportedConcern || "Not specified"}${appointment.concernDetails ? ` — ${appointment.concernDetails}` : ""}. Conditions mentioned: ${reportedConditions.join(", ") || "None listed"}.`;
+        openDialog(`
+          <div class="dialog-header"><div><h2 id="modal-title">Review visit &amp; add prescription</h2><p>Assigned clinician: ${escapeHtml(appointment.doctor)}.</p></div><button class="close-btn" data-action="close" aria-label="Close summary">×</button></div>
+          <div class="inline-note"><strong>Demo only:</strong> Enter only the assessment, instructions, and prescription actually provided by the assigned clinician. In a real service, only that authenticated clinician should access this visit. Nothing here is sent to a doctor or pharmacy.</div>
+          <form id="consultation-form">
+            <div class="form-grid">
+              <div class="care-instructions"><strong>What the patient reported</strong><p>${escapeHtml(patientReport)}</p></div>
+              <label class="form-field">Problem reviewed and selected by the clinician
+                <select name="concern" required><option value="" selected disabled>Choose the clinician's assessment</option>${concerns.map((concern) => `<option>${escapeHtml(concern)}</option>`).join("")}</select>
+              </label>
+              <label class="form-field">Other conditions confirmed by the clinician
+                <textarea name="conditionsText" maxlength="300" placeholder="Enter only conditions confirmed during this sample visit"></textarea>
+              </label>
+              <fieldset class="form-section">
+                <legend>Conditions confirmed by the clinician</legend>
+                <span class="field-hint">Patient-reported conditions are not automatically treated as diagnoses. Select only conditions confirmed during this sample visit.</span>
+                <div class="check-grid">${conditionChecks}</div>
+              </fieldset>
+              <label class="form-field">Clinician's care instructions
+                <textarea name="visitNotes" maxlength="500" placeholder="Sample follow-up instructions, if any"></textarea>
+              </label>
+              <fieldset class="form-section">
+                <legend>Prescription decision</legend>
+                <label class="check-option"><input type="radio" name="prescriptionChoice" value="none" checked> No medicine prescribed at this visit</label>
+                <label class="check-option"><input type="radio" name="prescriptionChoice" value="prescribed"> Add prescription(s) provided by the clinician</label>
+                <div id="prescription-fields" class="form-grid" hidden>
+                  <span class="field-hint">Complete only from the clinician's actual prescription. Each prescription is linked to the condition it treats.</span>
+                  <div id="prescription-entries"></div>
+                  <button class="secondary-btn" type="button" id="add-prescription" data-action="add-prescription">＋ Add another prescription</button>
+                </div>
+              </fieldset>
+            </div>
+            <p id="clinician-save-error" class="field-hint" role="alert" hidden></p>
+            <div class="form-actions"><button class="secondary-btn" type="button" data-action="close">Save later</button><button class="primary-btn" type="submit">Save sample visit summary</button></div>
+          </form>
+        `);
+        $("#consultation-form").addEventListener("input", (event) => {
+          if (event.target.name === "conditionsText") updatePrescriptionConditionOptions();
+        });
+        $("#consultation-form").addEventListener("change", (event) => {
+          if (["concern", "confirmedConditions"].includes(event.target.name)) updatePrescriptionConditionOptions();
+          if (event.target.name !== "prescriptionChoice") return;
+          const hasPrescription = event.target.value === "prescribed";
+          const fields = $("#prescription-fields");
+          fields.hidden = !hasPrescription;
+          fields.querySelectorAll("input").forEach((input) => { input.disabled = !hasPrescription; });
+          if (hasPrescription) {
+            if (!$("#prescription-entries").children.length) addPrescriptionRow();
+            $("#prescription-entries select").focus();
+          }
+        });
+        $("#consultation-form").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          if (appointment.status !== "awaiting-prescription" || appointment.doctor !== activeClinician) return;
+          const submitButton = event.currentTarget.querySelector('[type="submit"]');
+          submitButton.disabled = true;
+          const form = new FormData(event.currentTarget);
+          const confirmed = form.getAll("confirmedConditions").map(String);
+          const otherConditions = String(form.get("conditionsText") || "").split(/[,;\n]/).map((item) => item.trim()).filter(Boolean);
+          const selectedConditions = [...new Set([...confirmed, ...otherConditions])];
+          const hasPrescription = form.get("prescriptionChoice") === "prescribed";
+          const prescriptionValues = ["medicineCondition", "medicineType", "medicine", "strength", "form", "doseAmount", "doseUnit", "dosesPerDay", "dose", "route", "frequency", "duration", "quantity", "refills", "pharmacy", "instructions", "missedDose", "safetyAdvice"].map((name) => form.getAll(name).map((value) => String(value).trim()));
+          const completedOn = localDateString(today);
+          const updatedAppointment = {
+            ...appointment,
+            status: "completed",
+            completedOn,
+            concern: String(form.get("concern")),
+            conditions: selectedConditions,
+            visitNotes: String(form.get("visitNotes") || "").trim(),
+            prescriptions: hasPrescription ? prescriptionValues[0].map((condition, index) => ({
+            condition,
+            medicineType: prescriptionValues[1][index],
+            medication: prescriptionValues[2][index],
+            strength: prescriptionValues[3][index],
+            form: prescriptionValues[4][index],
+            doseAmount: prescriptionValues[5][index],
+            doseUnit: prescriptionValues[6][index],
+            dosesPerDay: prescriptionValues[7][index],
+            dose: prescriptionValues[8][index],
+            route: prescriptionValues[9][index],
+            frequency: prescriptionValues[10][index],
+            duration: prescriptionValues[11][index] || "Not specified",
+            quantity: prescriptionValues[12][index] || "Not listed",
+            refills: prescriptionValues[13][index] || "0",
+            pharmacy: prescriptionValues[14][index],
+            instructions: prescriptionValues[15][index],
+            missedDose: prescriptionValues[16][index],
+            safetyAdvice: prescriptionValues[17][index],
+            prescriber: appointment.doctor,
+            issuedOn: completedOn
+            })) : []
+          };
+          updatedAppointment.prescription = updatedAppointment.prescriptions[0] || null;
+          try {
+            Object.assign(appointment, await apiRequest(`/api/appointments/${encodeURIComponent(appointment.id)}`, "PUT", updatedAppointment));
+          } catch (error) {
+            const errorMessage = $("#clinician-save-error");
+            errorMessage.textContent = `Could not save this visit review. ${error.message}`;
+            errorMessage.hidden = false;
+            reportBackendError(error);
+            submitButton.disabled = false;
+            return;
+          }
+          setBackendStatus("Visit review and prescription saved to the demo SQLite database.");
+          renderAppointments();
+          renderHistory();
+          renderMedicines();
+          closeDialog();
+          openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Visit review saved</h2></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="success-message" role="status">The sample visit review is saved in the demo SQLite database. ${hasPrescription ? `${appointment.prescriptions.length} sample prescription${appointment.prescriptions.length === 1 ? "" : "s"} added for the patient.` : "The clinician recorded that no medicine was prescribed."} This is not a real prescription or medical record.</div><div class="form-actions"><button class="primary-btn" data-target="history">View visit history</button><button class="secondary-btn" data-action="close">Done</button></div>`);
+        });
+      }
+
+      function showRecords() {
+        const latestPrescriptionVisit = appointments
+          .filter((item) => item.status === "completed" && getAppointmentPrescriptions(item).length)
+          .sort((a, b) => `${getAppointmentPrescriptions(b)[0].issuedOn || b.date}${b.time || ""}`.localeCompare(`${getAppointmentPrescriptions(a)[0].issuedOn || a.date}${a.time || ""}`))[0];
+        const latestPrescription = latestPrescriptionVisit && getAppointmentPrescriptions(latestPrescriptionVisit)[0];
+        const prescriptionDescription = latestPrescription
+          ? `${escapeHtml(latestPrescription.medication)} · ${formatDate(latestPrescription.issuedOn || latestPrescriptionVisit.date, { month: "short", day: "numeric" })} · Sample`
+          : "No prescription on file";
+        openDialog(`
+          <div class="dialog-header"><div><h2 id="modal-title">Your health records</h2><p>Keep important care information together.</p></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div>
+          <div class="demo-banner" style="margin:0 0 15px"><span aria-hidden="true">🔒</span><div>Demo records only. Do not upload personal health information; files are not encrypted or sent to a secure medical record system.</div></div>
+          <div class="record-row"><span class="record-icon" aria-hidden="true">🩺</span><div class="record-info"><strong>Care summary</strong><small>Updated September 18 · Sample</small></div><button data-action="care-summary">View</button></div>
+          <div class="record-row"><span class="record-icon" aria-hidden="true">📄</span><div class="record-info"><strong>Latest prescription</strong><small>${prescriptionDescription}</small></div><button data-action="prescription">View</button></div>
+          <div class="record-row"><span class="record-icon" aria-hidden="true">🧪</span><div class="record-info"><strong>Blood test results</strong><small>September 12 · Sample</small></div><button data-action="lab-results">View</button></div>
+          <div class="form-actions"><button class="secondary-btn" data-target="history">See visit &amp; prescription history</button></div>
+          <p class="note">Real records require an authenticated, encrypted healthcare service with appropriate access controls and audit logging.</p>
+        `);
+      }
+
+      function showRecord(kind) {
+        if (kind === "prescription") {
+          const latestVisit = appointments
+            .filter((item) => item.status === "completed" && getAppointmentPrescriptions(item).length)
+            .sort((a, b) => `${getAppointmentPrescriptions(b)[0].issuedOn || b.date}${b.time || ""}`.localeCompare(`${getAppointmentPrescriptions(a)[0].issuedOn || a.date}${a.time || ""}`))[0];
+          if (latestVisit) {
+            showHistoryPrescriptions(latestVisit.id);
+            return;
+          }
+        }
+        const content = {
+          "care-summary": ["Care summary", "Your care team: Dr. Priya Shah", "Preferred visit: Video visit", "Allergies: Please confirm with your clinician", "This is sample information, not a medical record."],
+          prescription: ["Prescription history", "No prescription is on file yet.", "A clinician can add a prescription after a consultation.", "Never start, stop, or change a medicine based on this sample app."],
+          "lab-results": ["Blood test results", "Collected September 10 · Sample result", "For questions about test results, please contact your care team.", "This sample does not contain real clinical results."]
+        }[kind];
+        if (!content) return;
+        openDialog(`<div class="dialog-header"><div><h2 id="modal-title">${content[0]}</h2><p>Sample record · for demonstration only</p></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="care-instructions">${content.slice(1).map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div><div class="form-actions"><button class="primary-btn" data-action="close">Close</button></div>`);
+      }
+
+      function showHistoryPrescriptions(id) {
+        const appointment = appointments.find((item) => item.id === id);
+        if (!appointment) return;
+        const prescriptions = getAppointmentPrescriptions(appointment);
+        if (!prescriptions.length) return;
+        const prescriptionItems = prescriptions.map((prescription, index) => `<section class="prescription-entry"><h3>Medicine ${index + 1}: ${escapeHtml(prescription.medication)}</h3><p><strong>For:</strong> ${escapeHtml(prescription.condition || appointment.concern || "Not listed")} · <strong>Type:</strong> ${escapeHtml(prescription.medicineType || "Not listed")}</p><p><strong>Strength:</strong> ${escapeHtml(prescription.strength || "Not listed")} · <strong>Form:</strong> ${escapeHtml(prescription.form || "Not listed")}</p><p><strong>Amount each dose:</strong> ${escapeHtml(prescription.doseAmount || "Not listed")} ${escapeHtml(prescription.doseUnit || "")} · <strong>Doses per day:</strong> ${escapeHtml(prescription.dosesPerDay || "Not listed")}</p>${prescription.dose ? `<p><strong>Extra dose instructions:</strong> ${escapeHtml(prescription.dose)}</p>` : ""}<p><strong>Route:</strong> ${escapeHtml(prescription.route || "Not listed")} · <strong>Exact schedule:</strong> ${escapeHtml(prescription.frequency || "Not listed")} · <strong>Duration:</strong> ${escapeHtml(prescription.duration || "Not specified")}</p><p><strong>Quantity:</strong> ${escapeHtml(prescription.quantity || "Not listed")} · <strong>Refills:</strong> ${escapeHtml(prescription.refills || "0")}</p>${prescription.pharmacy ? `<p><strong>Pharmacy:</strong> ${escapeHtml(prescription.pharmacy)}</p>` : ""}${prescription.instructions ? `<p><strong>Clinician's notes:</strong> ${escapeHtml(prescription.instructions)}</p>` : ""}${prescription.missedDose ? `<p><strong>If a dose is missed:</strong> ${escapeHtml(prescription.missedDose)}</p>` : ""}${prescription.safetyAdvice ? `<p><strong>Side effects or warning signs:</strong> ${escapeHtml(prescription.safetyAdvice)}</p>` : ""}<p><strong>Prescriber:</strong> ${escapeHtml(prescription.prescriber || appointment.doctor)}</p></section>`).join("");
+        openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Prescriptions from your visit</h2><p>${formatDate(prescriptions[0].issuedOn || appointment.date, { month: "long", day: "numeric", year: "numeric" })} · Sample record</p></div><button class="close-btn" data-action="close" aria-label="Close prescriptions">×</button></div>
+          <div class="care-instructions">${prescriptionItems}<p><strong>Visit concern:</strong> ${escapeHtml(appointment.concern || "Not listed")}</p><p><strong>Other conditions confirmed:</strong> ${escapeHtml((appointment.conditions || []).join(", ") || "None listed")}</p></div>
+          <div class="inline-note" style="margin-top:14px">Sample only. This is not a valid prescription, and the information is not sent to a pharmacy. Follow instructions from your real clinician.</div>
+          <div class="form-actions"><button class="primary-btn" data-action="close">Close</button></div>`);
+      }
+
+      function showAppointmentDetails() {
+        const appointment = getUpcomingAppointments()[0];
+        if (!appointment) return;
+        openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Appointment details</h2><p>${escapeHtml(appointment.format)}</p></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="care-instructions"><p><strong>${escapeHtml(appointment.specialty)} with ${escapeHtml(appointment.doctor)}</strong></p><p>${formatDate(appointment.date, { weekday: "long", month: "long", day: "numeric" })} at ${new Date(`2000-01-01T${appointment.time}`).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</p><p>Demo only — this appointment has not been sent to a clinic.</p></div><div class="form-actions"><button class="secondary-btn" data-action="close">Close</button><button class="primary-btn" data-action="finish-inperson" data-id="${escapeHtml(appointment.id)}">Record completed visit</button></div>`);
+      }
+
+      function showAiGuide() {
+        openDialog(`
+          <div class="dialog-header"><div><h2 id="modal-title">AI care guide</h2><p>General health information and help preparing for a clinician visit.</p></div><button class="close-btn" data-action="close" aria-label="Close AI care guide">×</button></div>
+          <div class="inline-note"><strong>Demo guide:</strong> These are prepared sample replies, not a connected AI model or clinician. It cannot assess symptoms, diagnose, recommend treatment, or prescribe. Do not share private medical details.</div>
+          <div class="ai-topic-list" aria-label="Choose what you need help with">
+            <button class="ai-topic" data-action="ai-topic" data-topic="questions" aria-pressed="false">Prepare questions for my doctor</button>
+            <button class="ai-topic" data-action="ai-topic" data-topic="medicine" aria-pressed="false">Understand medicine information</button>
+            <button class="ai-topic" data-action="ai-topic" data-topic="health" aria-pressed="false">Learn a general health term</button>
+            <button class="ai-topic" data-action="ai-topic" data-topic="symptoms" aria-pressed="false">I have a health concern</button>
+          </div>
+          <div class="ai-chat-log" id="ai-chat-log" role="log" aria-live="polite" aria-relevant="additions text">
+            <div class="ai-message">Hello. I can share general health information or help you prepare questions for your doctor. What would you like help with?</div>
+          </div>
+          <form class="chat-compose" id="ai-chat-form"><label class="sr-only" for="ai-question">Ask the care guide</label><input id="ai-question" name="question" aria-label="Ask the care guide" placeholder="Type a general question…" maxlength="400" autocomplete="off" required><button class="primary-btn" type="submit">Ask guide</button></form>
+          <p class="note">This demo runs on this device only; your question is not sent to a doctor or AI service. For diagnosis or care decisions, contact your clinician. For a life-threatening emergency, call your local emergency number.</p>
+        `);
+        $("#ai-chat-form").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const input = $("#ai-question");
+          const question = input.value.trim();
+          if (!question) return;
+          const activeTopic = dialog.querySelector("[data-topic][aria-pressed='true']");
+          addAiGuideMessage(question, true);
+          addAiGuideMessage(getAiGuideReply(question, activeTopic ? activeTopic.dataset.topic : ""), false);
+          input.value = "";
+          input.focus();
+        });
+      }
+
+      function getAiGuideReply(question, topic) {
+        const text = question.toLowerCase();
+        if (/\b(chest pain|can't breathe|cannot breathe|trouble breathing|difficulty breathing|unconscious|not waking|severe bleeding|face drooping|suicid)\b/.test(text)) {
+          return "I can’t assess emergencies. If someone may be in immediate danger or has a life-threatening problem, call your local emergency number now. Do not wait for this app or a chat reply.";
+        }
+        if (topic === "questions" || /\b(ask|question|doctor|appointment)\b/.test(text)) {
+          return "You could ask your clinician: “What do you think may be causing this?”, “What should I watch for?”, “Could my other health conditions or medicines matter?”, and “When should I follow up?” Your clinician can answer based on your personal health.";
+        }
+        if (topic === "medicine" || /\b(medicine|medication|prescription|pill|dose|label|refill)\b/.test(text)) {
+          return "A medicine label commonly lists its name, strength, dose, how and when to take it, and refill information. I can’t say what medicine is right for you or how to take it. Ask your prescribing clinician or pharmacist to explain your exact label; don’t change a medicine based on this guide.";
+        }
+        if (topic === "health" || /\b(term|mean|definition|health)\b/.test(text)) {
+          return "I can help explain general health words, but not what they mean for your individual health. Share a general term (not personal records), and ask your clinician to explain how it applies to you.";
+        }
+        if (topic === "symptoms" || /\b(pain|hurt|symptom|feel|sick|problem)\b/.test(text)) {
+          return "I’m sorry you’re dealing with a concern. I can’t assess symptoms or recommend what care you need. Please contact your clinician for advice. I can help you write down when it started, what you noticed, and questions to ask. If it seems life-threatening, call your local emergency number.";
+        }
+        return "I’m a limited demo guide, not a clinician or connected AI service. I can help prepare questions for your doctor or explain general health terms, but I can’t assess personal symptoms, diagnose, recommend treatment, or prescribe.";
+      }
+
+      function addAiGuideMessage(text, isUser) {
+        const log = $("#ai-chat-log");
+        const message = document.createElement("div");
+        message.className = `ai-message${isUser ? " user" : ""}`;
+        message.textContent = text;
+        log.append(message);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      async function toggleCamera(button) {
+        const video = $("#local-video");
+        if (localStream) {
+          localStream.getVideoTracks().forEach((track) => { track.stop(); localStream.removeTrack(track); });
+          video.srcObject = null;
+          video.style.display = "none";
+          button.textContent = "Turn camera on";
+          button.classList.remove("is-muted");
+          button.setAttribute("aria-pressed", "false");
+          return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          $("#call-message").textContent = "Camera access is unavailable here. Use a secure HTTPS connection and a supported browser.";
+          return;
+        }
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          video.srcObject = localStream;
+          video.style.display = "block";
+          button.textContent = "Turn camera off";
+          button.classList.add("is-muted");
+          button.setAttribute("aria-pressed", "true");
+          $("#call-message").textContent = "You can see your own preview. A doctor is not connected.";
+        } catch (error) {
+          $("#call-message").textContent = error.name === "NotAllowedError" ? "Camera permission was not granted. You can still use the sample call screen." : "The camera could not be started. Check your device and try again.";
+        }
+      }
+
+      document.addEventListener("click", async (event) => {
+        const action = event.target.closest("[data-action]");
+        if (action) {
+          const name = action.dataset.action;
+          if (name === "logout") {
+            action.disabled = true;
+            try {
+              await apiRequest("/api/logout", "POST", {});
+            } catch (error) {
+              reportBackendError(error);
+              action.disabled = false;
+              return;
+            }
+            $("#app").hidden = true;
+            $("#login-screen").hidden = false;
+            $(".skip-link").href = "#login-title";
+            $("#login-form").reset();
+            $('#login-form [type="submit"]').disabled = false;
+            $("#login-error").textContent = "";
+            $("#login-title").textContent = "Welcome back";
+            $("#login-intro").textContent = "Enter your existing details to sign in, or new fictional details to create a separate demo profile. Each profile has its own appointments and records.";
+            action.disabled = false;
+            $("#login-form [name=\"fullName\"]").focus();
+          }
+          if (name === "book") showBooking();
+          if (name === "close") closeDialog();
+          if (name === "call") showCall();
+          if (name === "finish-consultation") finishConsultation();
+          if (name === "finish-inperson") {
+            activeAppointmentId = action.dataset.id;
+            finishConsultation();
+          }
+          if (name === "clinician-workspace") showClinicianWorkspace();
+          if (name === "doctor-visit") showClinicianPrescriptionEditor(action.dataset.id);
+          if (name === "appointment-details") showAppointmentDetails();
+          if (name === "records") showRecords();
+          if (name === "ai-guide") showAiGuide();
+          if (name === "ai-topic") {
+            dialog.querySelectorAll("[data-topic]").forEach((topicButton) => {
+              const isSelected = topicButton === action;
+              topicButton.setAttribute("aria-pressed", String(isSelected));
+              topicButton.classList.toggle("active", isSelected);
+            });
+            addAiGuideMessage(action.textContent.trim(), true);
+            addAiGuideMessage(getAiGuideReply("", action.dataset.topic), false);
+          }
+          if (name === "care-summary" || name === "prescription" || name === "lab-results") showRecord(name);
+          if (name === "history-prescription") showHistoryPrescriptions(action.dataset.id);
+          if (name === "add-prescription") addPrescriptionRow();
+          if (name === "remove-prescription") {
+            action.closest(".prescription-entry").remove();
+            updatePrescriptionRowLabels();
+            $("#add-prescription")?.focus();
+          }
+          if (name === "camera") await toggleCamera(action);
+          if (name === "mute") {
+            const muted = action.getAttribute("aria-pressed") === "true";
+            action.setAttribute("aria-pressed", String(!muted));
+            action.textContent = muted ? "Mute microphone" : "Microphone off";
+            action.classList.toggle("is-muted", !muted);
+            $("#call-message").textContent = "Microphone controls are a local demo only. No audio is transmitted.";
+          }
+        }
+        const target = event.target.closest("[data-target]");
+        if (target) {
+          if (overlay.classList.contains("open")) closeDialog();
+          const section = document.getElementById(target.dataset.target);
+          if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+          document.querySelectorAll(".nav button[data-target], .bottom-nav button[data-target]").forEach((item) => {
+            const isCurrent = item.dataset.target === target.dataset.target;
+            item.classList.toggle("active", isCurrent);
+            if (isCurrent) item.setAttribute("aria-current", "page");
+            else item.removeAttribute("aria-current");
+          });
+        }
+      });
+
+      overlay.addEventListener("click", (event) => { if (event.target === overlay) closeDialog(); });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && overlay.classList.contains("open")) closeDialog();
+        if (event.key === "Tab" && overlay.classList.contains("open")) {
+          const focusable = [...dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href]')];
+          if (!focusable.length) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+      });
+
+      $("#reminder-toggle").addEventListener("click", async () => {
+        if (!getPrescribedMedicines().length) return;
+        const enabled = !remindersEnabled;
+        $("#reminder-toggle").disabled = true;
+        try {
+          await apiRequest("/api/preferences", "PUT", { reminders: enabled });
+          remindersEnabled = enabled;
+        } catch (error) {
+          reportBackendError(error);
+          $("#reminder-toggle").disabled = false;
+          return;
+        }
+        renderMedicines();
+        if (enabled) {
+          openDialog(`<div class="dialog-header"><div><h2 id="modal-title">Medication reminders</h2><p>This sample preference is saved in the demo SQLite database.</p></div><button class="close-btn" data-action="close" aria-label="Close">×</button></div><div class="success-message">Reminders are switched on for this demo. No background notifications will be sent. In a real app, reminder times should be configured with your care team.</div><div class="form-actions"><button class="primary-btn" data-action="close">Got it</button></div>`);
+        }
+      });
+      document.getElementById("today-label").textContent = today.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+      document.querySelector('#login-form [name="dateOfBirth"]').max = localDateString(today);
+
+      async function loadAppData() {
+        try {
+          const [savedAppointments, preferences, medicationChecks] = await Promise.all([
+            apiRequest("/api/appointments"),
+            apiRequest("/api/preferences"),
+            apiRequest(`/api/medication-checks?date=${encodeURIComponent(localDateString(today))}`)
+          ]);
+          appointments = savedAppointments;
+          remindersEnabled = preferences.reminders;
+          checkedMedicationIds = new Set(medicationChecks.taken);
+          backendReady = true;
+          renderAppointments();
+          renderHistory();
+          renderMedicines();
+          setBackendStatus("Connected to the demo SQLite database.");
+          return true;
+        } catch (error) {
+          setBackendStatus(`Backend unavailable. ${error.message}`, true);
+          return false;
+        }
+      }
+
+      async function showDashboard(profile) {
+        if (!(await loadAppData())) return false;
+        const initials = profile.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+        $("#profile-name").textContent = profile.fullName;
+        $("#profile-avatar").textContent = initials;
+        $("#greeting").textContent = `Hello, ${profile.fullName}`;
+        $("#login-screen").hidden = true;
+        $("#app").hidden = false;
+        $(".skip-link").href = "#home";
+        $("#home").focus();
+        return true;
+      }
+
+      async function initializeLogin() {
+        try {
+          const profileState = await apiRequest("/api/demo-profile");
+          $("#login-title").textContent = profileState.profileExists ? "Welcome back" : "Welcome";
+          $("#login-intro").textContent = "Enter your existing details to sign in, or new fictional details to create a separate demo profile. Each profile has its own appointments and records.";
+          $("#login-screen").hidden = false;
+          $("#app").hidden = true;
+          $(".skip-link").href = "#login-title";
+          if (profileState.authenticated && await showDashboard({ fullName: profileState.fullName })) return;
+          $("#login-form [name=\"fullName\"]").focus();
+        } catch (error) {
+          $("#login-screen").hidden = false;
+          $("#app").hidden = true;
+          $("#login-error").textContent = error.message;
+        }
+      }
+
+      $("#login-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const submitButton = form.querySelector('[type="submit"]');
+        const errorMessage = $("#login-error");
+        submitButton.disabled = true;
+        errorMessage.textContent = "";
+        try {
+          const values = new FormData(form);
+          const profile = await apiRequest("/api/demo-profile", "POST", {
+            fullName: String(values.get("fullName") || "").trim(),
+            dateOfBirth: String(values.get("dateOfBirth") || ""),
+            mobileNumber: String(values.get("mobileNumber") || "").trim()
+          });
+          if (!(await showDashboard(profile))) submitButton.disabled = false;
+        } catch (error) {
+          errorMessage.textContent = error.message;
+          submitButton.disabled = false;
+        }
+      });
+
+      initializeLogin();
+    })();
+  </script>
+</body>
+</html>
